@@ -20,11 +20,16 @@ import {
   Globe,
   Percent,
   FileSignature,
-  Lock
+  Lock,
+  Palette,
+  Check,
+  RotateCcw,
+  Sparkles
 } from "lucide-react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import BASE_URL from "@/config/BaseUrl";
+import { THEME_PRESETS, applyTheme, getSavedTheme, resetTheme, generateThemeFromHex } from "@/utils/theme";
 
 const CompanySetting = () => {
   const { toast } = useToast();
@@ -38,6 +43,49 @@ const CompanySetting = () => {
   
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  
+  // Theme State
+  const [currentTheme, setCurrentTheme] = useState(() => getSavedTheme());
+  const [customHex, setCustomHex] = useState(() => getSavedTheme()?.primary || "#2563eb");
+
+  const handlePresetSelect = (preset) => {
+    setCurrentTheme(preset);
+    setCustomHex(preset.primary);
+    applyTheme(preset);
+    toast({
+      title: "Theme Applied",
+      description: `Switched to ${preset.name} theme`,
+    });
+  };
+
+  const handleCustomColorChange = (e) => {
+    const hex = e.target.value;
+    setCustomHex(hex);
+    if (/^#[0-9A-F]{6}$/i.test(hex)) {
+      const newTheme = generateThemeFromHex(hex, "Custom Brand");
+      setCurrentTheme(newTheme);
+      applyTheme(newTheme);
+    }
+  };
+
+  const handleSaveTheme = () => {
+    const themeToSave = generateThemeFromHex(customHex, currentTheme?.name || "Custom Brand");
+    applyTheme(themeToSave);
+    toast({
+      title: "Success",
+      description: "Brand theme color saved successfully",
+    });
+  };
+
+  const handleResetDefaultTheme = () => {
+    const def = resetTheme();
+    setCurrentTheme(def);
+    setCustomHex(def.primary);
+    toast({
+      title: "Theme Reset",
+      description: "Reset to default Corporate Blue theme",
+    });
+  };
   
   // Profile Data
   const [originalProfileData, setOriginalProfileData] = useState({
@@ -378,12 +426,13 @@ const CompanySetting = () => {
       setPasswordError("");
       
       const token = Cookies.get("token");
+      const username = profileFormData.name || originalProfileData.name || Cookies.get("name") || "";
       const response = await axios.post(
         `${BASE_URL}/api/panel-change-password`,
         {
-          name: originalProfileData.name,
-          currentPassword: passwordFormData.currentPassword,
-          newPassword: passwordFormData.newPassword
+          username: username,
+          old_password: passwordFormData.currentPassword,
+          new_password: passwordFormData.newPassword
         },
         {
           headers: { 
@@ -393,25 +442,35 @@ const CompanySetting = () => {
         }
       );
 
-      if (response.data?.code === 200) {
+      const isSuccess =
+        (response.status >= 200 && response.status < 300) &&
+        (response.data?.code == 200 ||
+          response.data?.code == 201 ||
+          response.data?.message === "Password Changed" ||
+          response.data?.msg === "Password Changed" ||
+          !response.data?.code);
+
+      if (isSuccess && response.data?.code != 400 && response.data?.code != 401 && response.data?.code != 422) {
         toast({
           title: "Success",
-          description: "Password changed successfully",
+          description: response.data?.message || response.data?.msg || "Password changed successfully",
         });
         setPasswordFormData({
           currentPassword: "",
           newPassword: "",
           confirmPassword: ""
         });
+        setPasswordError("");
       } else {
-        throw new Error(response.data?.message || "Password change failed");
+        throw new Error(response.data?.message || response.data?.msg || "Password change failed");
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      setPasswordError(error.response?.data?.message || "Failed to change password");
+      const errorMsg = error.response?.data?.msg || error.response?.data?.message || error.message || "Failed to change password";
+      setPasswordError(errorMsg);
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to change password",
+        description: errorMsg,
         variant: "destructive"
       });
     } finally {
@@ -487,6 +546,12 @@ const CompanySetting = () => {
               onClick={() => setActiveTab("password")}
             >
               Change Password
+            </button>
+            <button
+              className={`pb-2 px-3 text-sm font-medium ${activeTab === "theme" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"}`}
+              onClick={() => setActiveTab("theme")}
+            >
+              Theme Color
             </button>
           </div>
 
@@ -812,6 +877,116 @@ const CompanySetting = () => {
               </Button>
             </form>
           )}
+
+          {activeTab === "theme" && (
+            <div className="space-y-6">
+              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <Palette className="h-5 w-5 text-blue-600" />
+                    Brand Color & Theme
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select a preset or pick a custom hex color to match your brand.
+                  </p>
+                </div>
+
+                {/* Presets Grid */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-gray-700">Preset Brand Palettes</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {THEME_PRESETS.map((preset) => {
+                      const isSelected = currentTheme?.primary?.toLowerCase() === preset.primary.toLowerCase();
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => handlePresetSelect(preset)}
+                          className={`flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 shadow-sm font-semibold"
+                              : "border-gray-200 hover:border-gray-300 bg-white"
+                          }`}
+                        >
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-inner"
+                            style={{ backgroundColor: preset.primary }}
+                          >
+                            {isSelected && <Check className="h-3.5 w-3.5 text-white stroke-[3]" />}
+                          </div>
+                          <div className="truncate">
+                            <div className="text-xs text-gray-800 leading-tight truncate">{preset.name}</div>
+                            <div className="text-[10px] text-gray-400 font-mono leading-none">{preset.primary}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Custom Hex Color Picker */}
+                <div className="p-3 rounded-lg border border-gray-200 bg-gray-50/50 space-y-2">
+                  <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                    Custom Brand Hex Code
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={customHex.startsWith("#") && customHex.length === 7 ? customHex : "#2563eb"}
+                      onChange={handleCustomColorChange}
+                      className="w-9 h-9 rounded cursor-pointer border border-gray-300 p-0.5 bg-white shrink-0"
+                    />
+                    <Input
+                      type="text"
+                      value={customHex}
+                      onChange={handleCustomColorChange}
+                      placeholder="#2563EB"
+                      maxLength={7}
+                      className="w-28 font-mono uppercase text-xs h-9"
+                    />
+                  </div>
+                </div>
+
+                {/* Live Preview */}
+                <div className="p-3 rounded-lg border border-gray-200 bg-white space-y-2">
+                  <Label className="text-xs font-semibold text-gray-700">Live UI Preview</Label>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button type="button" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8">
+                      Primary
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" className="border-blue-600 text-blue-600 hover:bg-blue-50 text-xs h-8">
+                      Outline
+                    </Button>
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-700 flex items-center">
+                      Active Status
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2 pt-2 border-t">
+                  <Button
+                    type="button"
+                    onClick={handleSaveTheme}
+                    className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Save className="h-4 w-4" />
+                    Save Brand Theme
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleResetDefaultTheme}
+                    className="w-full gap-2 text-gray-600"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Reset to Default
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -833,10 +1008,11 @@ const CompanySetting = () => {
           )}
 
           <Tabs defaultValue="company" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="company">Company Details</TabsTrigger>
               <TabsTrigger value="login">Login Details</TabsTrigger>
               <TabsTrigger value="password">Change Password</TabsTrigger>
+              <TabsTrigger value="theme">Theme & Branding</TabsTrigger>
             </TabsList>
 
            
@@ -1193,6 +1369,132 @@ const CompanySetting = () => {
                       </Button>
                     </div>
                   </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="theme">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Palette className="h-5 w-5 text-blue-600" />
+                    Brand Theme & Color
+                  </CardTitle>
+                  <CardDescription>
+                    Customize your CRM primary brand color to match your company branding
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                  {/* Presets */}
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-800 mb-3 block">
+                      Curated Brand Palettes
+                    </Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                      {THEME_PRESETS.map((preset) => {
+                        const isSelected = currentTheme?.primary?.toLowerCase() === preset.primary.toLowerCase();
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => handlePresetSelect(preset)}
+                            className={`flex flex-col items-center p-3.5 rounded-xl border-2 transition-all text-left cursor-pointer ${
+                              isSelected
+                                ? "border-blue-600 bg-blue-50/50 shadow-sm ring-2 ring-blue-600/20"
+                                : "border-gray-200 hover:border-gray-300 bg-white hover:shadow-sm"
+                            }`}
+                          >
+                            <div
+                              className="w-10 h-10 rounded-full mb-2.5 flex items-center justify-center shadow-inner relative"
+                              style={{ backgroundColor: preset.primary }}
+                            >
+                              {isSelected && <Check className="h-5 w-5 text-white stroke-[3]" />}
+                            </div>
+                            <span className="font-semibold text-xs text-gray-800 text-center">{preset.name}</span>
+                            <span className="text-[11px] text-gray-500 font-mono mt-0.5">{preset.primary}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Custom Color Input */}
+                  <div className="p-5 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
+                    <Label className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-blue-600" />
+                      Custom Brand Hex Code
+                    </Label>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="color"
+                          value={customHex.startsWith("#") && customHex.length === 7 ? customHex : "#2563eb"}
+                          onChange={handleCustomColorChange}
+                          className="w-11 h-11 rounded-lg cursor-pointer border border-gray-300 p-0.5 bg-white"
+                        />
+                        <Input
+                          type="text"
+                          value={customHex}
+                          onChange={handleCustomColorChange}
+                          placeholder="#2563EB"
+                          maxLength={7}
+                          className="w-36 font-mono uppercase text-sm h-11"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 max-w-md">
+                        Pick any custom hex color. Hover shades, light backgrounds, and borders are generated automatically.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Live Preview Panel */}
+                  <div className="p-5 rounded-xl border border-gray-200 bg-white space-y-3">
+                    <Label className="text-sm font-semibold text-gray-800">
+                      Live UI Preview
+                    </Label>
+                    <div className="p-4 rounded-lg bg-gray-50 border border-gray-100 flex flex-wrap items-center gap-4">
+                      <Button
+                        type="button"
+                        className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                      >
+                        Primary Action
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                      >
+                        Outline Button
+                      </Button>
+                      <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                        Active Status Pill
+                      </div>
+                      <div className="px-3.5 py-1.5 rounded-lg border border-blue-200 bg-white text-xs font-medium text-gray-700 shadow-2xs">
+                        Border Badge Sample
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleResetDefaultTheme}
+                      className="gap-2 text-gray-600 hover:text-gray-900"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Reset to Default (Blue)
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSaveTheme}
+                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 shadow-sm"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Brand Theme
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

@@ -38,6 +38,7 @@ export default function Page({ children }) {
   // Get user data from cookies
   const nameL = Cookies.get("name");
   const emailL = Cookies.get("email");
+  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "COTECB Bridge";
   const user_position = Cookies.get("user_position");
 
   const handleBackClick = (e) => {
@@ -46,7 +47,7 @@ export default function Page({ children }) {
   };
 
   const handleLogout = () => {
-    ['token', 'id', 'name', 'userType', 'email'].forEach(cookie => {
+    ['token', 'id', 'name', 'userType', 'email', 'user_position', 'company_name', 'company_email'].forEach(cookie => {
       Cookies.remove(cookie);
     });
     localStorage.clear();
@@ -108,7 +109,7 @@ export default function Page({ children }) {
           <div className=" flex flex-col items-start ">
             {/* <img src={logo} alt="logo"  className="h-8 w-full" /> */}
             <span className="font-medium  text-lg">Welcome</span>
-            <span className="text-gray-400 text-md mx-2">JK Steel</span>
+            <span className="text-gray-400 text-md mx-2">{companyNameL}</span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

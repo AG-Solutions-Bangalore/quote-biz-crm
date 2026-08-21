@@ -12,6 +12,7 @@ const useAuth = () => {
       name: Cookies.get("name"),
       userType: Cookies.get("userType"),
       email: Cookies.get("email"),
+      company_name: Cookies.get("company_name") || localStorage.getItem("company_name") || "",
     };
 
     if (token) {

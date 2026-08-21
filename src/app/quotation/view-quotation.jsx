@@ -202,6 +202,7 @@ Please find the attached quotation document.`;
   };
 
   const { branch, subs, ...quotation } = quotationData;
+  const defaultCompanyName = Cookies.get("company_name") || localStorage.getItem("company_name") || "COTECB Bridge";
 
   return (
     <div className=" relative  bg-white ">
@@ -242,19 +243,24 @@ Please find the attached quotation document.`;
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-2xl font-bold mb-1">
-              {branch?.branch_name || "J K STEEL"}
+              {branch?.branch_name || defaultCompanyName}
             </h1>
-            <p className="text-sm">
-              {branch?.branch_sign_name || "GOURAV GARG"}
-            </p>
-            <p className="text-xs">
-              {branch?.branch_address ||
-                "RISHI NAGAR OPP GALI NUMBER 6 KURUKSHETRA ROAD KAITHAL"}
-            </p>
-            <p className="text-xs">
-              ☎ {branch?.branch_mobile_no || "8198979419"} ✉{" "}
-              {branch?.branch_email_id || "spekar549@gmail.com"}
-            </p>
+            {branch?.branch_sign_name && (
+              <p className="text-sm">{branch.branch_sign_name}</p>
+            )}
+            {branch?.branch_address && (
+              <p className="text-xs">{branch.branch_address}</p>
+            )}
+            {(branch?.branch_mobile_no || branch?.branch_email_id) && (
+              <p className="text-xs">
+                {branch?.branch_mobile_no && `☎ ${branch.branch_mobile_no}`}
+                {branch?.branch_mobile_no && branch?.branch_email_id && " ✉ "}
+                {branch?.branch_email_id && (!branch?.branch_mobile_no ? `✉ ${branch.branch_email_id}` : branch.branch_email_id)}
+              </p>
+            )}
+            {branch?.branch_gst && (
+              <p className="text-xs">GST: {branch.branch_gst}</p>
+            )}
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold">Quotation</h2>
@@ -264,20 +270,33 @@ Please find the attached quotation document.`;
         <div className="flex justify-between mb-6">
           <div>
             <p className="text-sm font-semibold">To,</p>
-            <p className="text-sm font-bold">
-              {quotation.buyer_name || "HF STUDIO"}
-            </p>
-            <p className="text-sm">{quotation.buyer_name || "HF STUDIO"}</p>
-            <p className="text-sm">KAITHAL</p>
+            {quotation.buyer_name && (
+              <p className="text-sm font-bold">{quotation.buyer_name}</p>
+            )}
+            {quotation.buyer_contact_name && (
+              <p className="text-sm">{quotation.buyer_contact_name}</p>
+            )}
+            {quotation.buyer_address && (
+              <p className="text-sm">{quotation.buyer_address}</p>
+            )}
+            {quotation.buyer_mobile && (
+              <p className="text-sm">☎ {quotation.buyer_mobile}</p>
+            )}
+            {quotation.buyer_email && (
+              <p className="text-sm">✉ {quotation.buyer_email}</p>
+            )}
+            {quotation.buyer_gst_vat && (
+              <p className="text-sm">GST: {quotation.buyer_gst_vat}</p>
+            )}
           </div>
           <div className="text-right">
             <p className="text-sm">
               <span className="font-semibold">Quotation:</span>{" "}
-              {quotation.quotation_ref || "Quote-12"}
+              {quotation.quotation_ref || ""}
             </p>
             <p className="text-sm">
               <span className="font-semibold">Date:</span>{" "}
-              {formatDate(quotation.quotation_date) || "26/12/2025"}
+              {formatDate(quotation.quotation_date)}
             </p>
             {quotation.quotation_valid_date && (
               <p className="text-sm">
@@ -364,19 +383,16 @@ Please find the attached quotation document.`;
           </p>
           <p className="text-xs mb-1">4) Transport : extra chargeable</p>
           <p className="text-xs mb-1">5) Installation charges not include</p>
-          <p className="text-xs mb-1">SUBJECT: KAITHAL</p>
-          {branch?.branch_name && (
-            <p className="text-xs mb-1">{branch.branch_name}</p>
+          {branch?.branch_footer && (
+            <div className="text-xs mb-1 mt-2 whitespace-pre-line">
+              {branch.branch_footer}
+            </div>
           )}
-          <p className="text-xs mb-1">State bank of india</p>
-          <p className="text-xs mb-1">JK STEEL</p>
-          <p className="text-xs mb-1">A/C : 65280797544</p>
-          <p className="text-xs mb-1">IFSC: SBIN0050112</p>
         </div>
 
         <div className="text-right mt-12 mb-4">
           <p className="text-sm font-semibold mb-16">
-            For, {branch?.branch_name || "J K STEEL"}
+            For, {branch?.branch_name || defaultCompanyName}
           </p>
           <p className="text-xs">AUTHORIZED SIGNATURE</p>
         </div>

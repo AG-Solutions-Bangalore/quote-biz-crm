@@ -35,7 +35,6 @@ const ChangePassword = ({ open, setOpen }) => {
 
   const handleSubmit = async () => {
     const missingFields = [];
-    if (!formData.name) missingFields.push("Name");
     if (!formData.currentPassword) missingFields.push("Current Password");
     if (!formData.newPassword) missingFields.push("New Password");
 
@@ -60,22 +59,37 @@ const ChangePassword = ({ open, setOpen }) => {
     setIsLoading(true);
     try {
       const token = Cookies.get("token");
+      const currentUsername = Cookies.get("name") || "";
       const response = await axios.post(
         `${BASE_URL}/api/panel-change-password`,
-        formData,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          username: currentUsername,
+          old_password: formData.currentPassword,
+          new_password: formData.newPassword,
+        },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
         }
       );
 
-      if (response?.data.code == 200) {
+      const isSuccess =
+        (response.status >= 200 && response.status < 300) &&
+        (response.data?.code == 200 ||
+          response.data?.code == 201 ||
+          response.data?.message === "Password Changed" ||
+          response.data?.msg === "Password Changed" ||
+          !response.data?.code);
+
+      if (isSuccess && response.data?.code != 400 && response.data?.code != 401 && response.data?.code != 422) {
         toast({
           title: "Success",
-          description: response.data.msg,
+          description: response.data?.message || response.data?.msg || "Password changed successfully",
         });
 
         setFormData({
-          name: "",
           currentPassword: "",
           newPassword: "",
         });
@@ -83,7 +97,7 @@ const ChangePassword = ({ open, setOpen }) => {
       } else {
         toast({
           title: "Error",
-          description: response.data.msg,
+          description: response.data?.message || response.data?.msg || "Failed to change password",
           variant: "destructive",
         });
       }
@@ -91,7 +105,7 @@ const ChangePassword = ({ open, setOpen }) => {
       toast({
         title: "Error",
         description:
-          error.response?.data?.message || "Failed to change password",
+          error.response?.data?.msg || error.response?.data?.message || "Failed to change password",
         variant: "destructive",
       });
     } finally {

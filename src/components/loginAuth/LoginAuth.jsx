@@ -81,13 +81,43 @@ export default function LoginAuth() {
           secure: isProduction,
           sameSite: "Strict",
         };
+
+        const companyName =
+          res.data?.company_detils?.company_name ||
+          res.data?.company_details?.company_name ||
+          UserInfo.user?.company_name ||
+          UserInfo.company_name ||
+          UserInfo.user?.branch_name ||
+          UserInfo.branch_name ||
+          UserInfo.user?.company ||
+          UserInfo.company ||
+          res.data?.company_name ||
+          res.data?.branch?.branch_name ||
+          res.data?.company ||
+          "";
+
+        const companyEmail =
+          res.data?.company_detils?.company_email ||
+          res.data?.company_details?.company_email ||
+          "";
   
         console.log("Saving user details to cookies...");
         Cookies.set("token", UserInfo.token, cookieOptions);
         Cookies.set("id", UserInfo.user.id, cookieOptions);
         Cookies.set("name", UserInfo.user.name, cookieOptions);
-        Cookies.set("userType", UserInfo.user.user_type_id, cookieOptions);
+        Cookies.set("userType", UserInfo.user.user_type ?? UserInfo.user.user_type_id ?? "", cookieOptions);
         Cookies.set("email", UserInfo.user.email, cookieOptions);
+        if (UserInfo.user.user_position) {
+          Cookies.set("user_position", UserInfo.user.user_position, cookieOptions);
+        }
+        if (companyName) {
+          Cookies.set("company_name", companyName, cookieOptions);
+          localStorage.setItem("company_name", companyName);
+        }
+        if (companyEmail) {
+          Cookies.set("company_email", companyEmail, cookieOptions);
+          localStorage.setItem("company_email", companyEmail);
+        }
   
         const redirectPath = window.innerWidth < 768 ? "/home" : "/home";
         console.log(`✅ Login successful! Redirecting to ${redirectPath}...`);
@@ -132,9 +162,9 @@ export default function LoginAuth() {
           <CardHeader>
           {/* <img src={logo} alt="logo" className=" mx-auto text-black bg-gray-500 rounded-lg shadow-md" />   */}
             <CardTitle
-              className={`text-2xl text-center${ButtonConfig.loginText}`}
+              className={`text-2xl text-center ${ButtonConfig.loginText}`}
             >
-    JK Steel
+              COTECB Bridge
             </CardTitle>
           </CardHeader>
           <CardContent>

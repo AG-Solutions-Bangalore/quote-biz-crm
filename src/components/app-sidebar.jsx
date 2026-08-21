@@ -38,6 +38,7 @@ import Cookies from "js-cookie";
 export function AppSidebar({ ...props }) {
   const nameL = Cookies.get("name");
   const emailL = Cookies.get("email");
+  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "COTECB Bridge";
 
   const initialData = {
     user: {
@@ -47,7 +48,7 @@ export function AppSidebar({ ...props }) {
     },
     teams: [
       {
-        name: `JK Steel`,
+        name: companyNameL,
         logo: GalleryVerticalEnd,
         plan: "",
       },

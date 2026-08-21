@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppProvider from "./lib/ContextPanel.jsx";
 import App from "./App.jsx";
 import "./index.css";
+import { initTheme } from "./utils/theme";
+
+// Initialize saved brand theme
+initTheme();
 
 const queryClient = new QueryClient(); 
 

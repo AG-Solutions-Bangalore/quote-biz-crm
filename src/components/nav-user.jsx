@@ -27,7 +27,7 @@ export function NavUser({ user }) {
   const navigate = useNavigate();
   const user_position = Cookies.get("email");
   const handleLogout = () => {
-    ['token', 'id', 'name', 'userType', 'email'].forEach(cookie => {
+    ['token', 'id', 'name', 'userType', 'email', 'user_position', 'company_name', 'company_email'].forEach(cookie => {
       Cookies.remove(cookie);
     });
     localStorage.clear();
