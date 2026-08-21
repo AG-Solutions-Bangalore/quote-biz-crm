@@ -38,7 +38,7 @@ export default function Page({ children }) {
   // Get user data from cookies
   const nameL = Cookies.get("name");
   const emailL = Cookies.get("email");
-  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "COTECB Bridge";
+  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "Quote Bizz";
   const user_position = Cookies.get("user_position");
 
   const handleBackClick = (e) => {
@@ -95,7 +95,7 @@ export default function Page({ children }) {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb> */}
-               <Breadcrumbs onBack={handleBackClick} />
+            <Breadcrumbs onBack={handleBackClick} />
           </div>
         </header>
 
@@ -144,7 +144,7 @@ export default function Page({ children }) {
               </DropdownMenuLabel>
 
               <DropdownMenuSeparator className="bg-blue-200" />
-              <DropdownMenuItem className="hover:bg-blue-100 focus:bg-blue-100 rounded-md my-0.5 mx-1" onClick={()=>navigate('/setting')}>
+              <DropdownMenuItem className="hover:bg-blue-100 focus:bg-blue-100 rounded-md my-0.5 mx-1" onClick={() => navigate('/setting')}>
                 <Key className="mr-2 h-4 w-4 text-blue-700" />
                 <span className="cursor-pointer">Settings</span>
               </DropdownMenuItem>
@@ -169,7 +169,7 @@ export default function Page({ children }) {
 
 
 
-   
+
         <div className="flex flex-1 flex-col gap-4 p-0 md:p-4 pt-0">
           <div className="min-h-[calc(100vh-8rem)] md:min-h-[100vh] flex-1 rounded-xl p-2 pb-16  md:pb-2">
             {children}
