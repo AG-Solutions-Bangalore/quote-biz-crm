@@ -1,25 +1,25 @@
 import * as React from "react";
 import {
   AudioWaveform,
-  
+
   Command,
 
   GalleryVerticalEnd,
 
-  LayoutDashboard,  
-    FileText,        
-    BookOpen,       
-    Book,          
-    Scale,            
-    Box,            
-    Mountain,        
-    SquareStack,     
-    ShoppingCart,    
-    Warehouse,
-    Frame,
-    ShoppingBag,
-    Package,
-    ReceiptText,  
+  LayoutDashboard,
+  FileText,
+  BookOpen,
+  Book,
+  Scale,
+  Box,
+  Mountain,
+  SquareStack,
+  ShoppingCart,
+  Warehouse,
+  Frame,
+  ShoppingBag,
+  Package,
+  ReceiptText,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -38,7 +38,7 @@ import Cookies from "js-cookie";
 export function AppSidebar({ ...props }) {
   const nameL = Cookies.get("name");
   const emailL = Cookies.get("email");
-  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "COTECB Bridge";
+  const companyNameL = Cookies.get("company_name") || localStorage.getItem("company_name") || "Quote Bizz";
 
   const initialData = {
     user: {
@@ -70,8 +70,8 @@ export function AppSidebar({ ...props }) {
         icon: Frame,
         isActive: false,
       },
-     
-     
+
+
       {
         title: "Client",
         url: "/client",
@@ -142,10 +142,10 @@ export function AppSidebar({ ...props }) {
           //   title: "Quotation detail",
           //   url: "/report/quotation-detail-report",
           // },
-          
+
         ],
       },
-     
+
     ],
   };
   // const initialData = {
@@ -178,7 +178,7 @@ export function AppSidebar({ ...props }) {
   //       icon: LayoutDashboard,
   //       isActive: false,
   //     },
-     
+
   //     {
   //       title: "Estimate",
   //       url: "/estimate",
@@ -233,7 +233,7 @@ export function AppSidebar({ ...props }) {
   //       icon: Warehouse,
   //       isActive: false,
   //     },
-     
+
   //   ],
   // };
 

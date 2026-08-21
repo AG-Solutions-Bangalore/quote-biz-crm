@@ -49,7 +49,7 @@ export default function LoginAuth() {
       if (intervalId) clearInterval(intervalId);
     };
   }, [isLoading]);
-  
+
 
 
 
@@ -57,14 +57,14 @@ export default function LoginAuth() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-  
+
     const formData = new FormData();
     formData.append("username", email);
     formData.append("password", password);
-  
+
     try {
       const res = await axios.post(`${BASE_URL}/api/panel-login`, formData);
-  
+
       if (res.status === 200) {
         if (!res.data.UserInfo || !res.data.UserInfo.token) {
           console.warn("⚠️ Login failed: Token missing in response");
@@ -72,10 +72,10 @@ export default function LoginAuth() {
           setIsLoading(false);
           return;
         }
-  
+
         const { UserInfo } = res.data;
         const isProduction = window.location.protocol === "https:";
-        
+
         const cookieOptions = {
           expires: 7,
           secure: isProduction,
@@ -100,7 +100,7 @@ export default function LoginAuth() {
           res.data?.company_detils?.company_email ||
           res.data?.company_details?.company_email ||
           "";
-  
+
         console.log("Saving user details to cookies...");
         Cookies.set("token", UserInfo.token, cookieOptions);
         Cookies.set("id", UserInfo.user.id, cookieOptions);
@@ -118,7 +118,7 @@ export default function LoginAuth() {
           Cookies.set("company_email", companyEmail, cookieOptions);
           localStorage.setItem("company_email", companyEmail);
         }
-  
+
         const redirectPath = window.innerWidth < 768 ? "/home" : "/home";
         console.log(`✅ Login successful! Redirecting to ${redirectPath}...`);
         navigate(redirectPath);
@@ -128,14 +128,14 @@ export default function LoginAuth() {
       }
     } catch (error) {
       console.error("❌ Login Error:", error.response?.data.message || error.message);
-  
+
       toast({
         variant: "destructive",
         title: "Login Failed",
         description:
           error.response?.data?.message || "Please check your credentials.",
       });
-  
+
       setIsLoading(false);
     }
   };
@@ -160,11 +160,11 @@ export default function LoginAuth() {
           className={`w-72 md:w-80 max-w-md ${ButtonConfig.loginBackground} ${ButtonConfig.loginText}`}
         >
           <CardHeader>
-          {/* <img src={logo} alt="logo" className=" mx-auto text-black bg-gray-500 rounded-lg shadow-md" />   */}
+            {/* <img src={logo} alt="logo" className=" mx-auto text-black bg-gray-500 rounded-lg shadow-md" />   */}
             <CardTitle
               className={`text-2xl text-center ${ButtonConfig.loginText}`}
             >
-              COTECB Bridge
+              Quote Bizz
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -190,49 +190,49 @@ export default function LoginAuth() {
                       onChange={(e) => setEmail(e.target.value)}
                       minLength={1}
                       maxLength={50}
-                      required 
-                
+                      required
+
                     />
                   </motion.div>
                 </div>
-              
 
 
-<div className="grid gap-2">
-  <Label
-    htmlFor="password"
-    className={`${ButtonConfig.loginText}`}
-  >
-    Password
-  </Label>
-  <motion.div
-    initial={{ opacity: 0, x: 20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: 0.3 }}
-  >
-    <div className="relative">
-      <Input
-        id="password"
-        type={showPassword ? "text" : "password"}
-        placeholder="*******"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-        minLength={1}
-        maxLength={16}
-        className="pr-10" 
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword((prev) => !prev)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-        tabIndex={-1} 
-      >
-        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
-  </motion.div>
-</div>
+
+                <div className="grid gap-2">
+                  <Label
+                    htmlFor="password"
+                    className={`${ButtonConfig.loginText}`}
+                  >
+                    Password
+                  </Label>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="*******"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={1}
+                        maxLength={16}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
